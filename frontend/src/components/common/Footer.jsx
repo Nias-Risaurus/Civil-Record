@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldAlert, Heart, MapPin, Phone, Mail } from 'lucide-react';
+import { ShieldAlert, MapPin, Phone, Mail } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -32,6 +32,11 @@ export const Footer = () => {
               <li>
                 <Link to="/" className="hover:text-white transition-colors">
                   Beranda
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-white transition-colors">
+                  Tentang CivilRecord
                 </Link>
               </li>
               <li>
@@ -91,4 +96,3 @@ export const Footer = () => {
     </footer>
   );
 };
-

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StatusBadge } from '../common/StatusBadge';
-import { Clock, User, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle2 } from 'lucide-react';
 
 export const ReportTimeline = ({ histories = [] }) => {
   if (!histories || histories.length === 0) {
@@ -75,4 +75,3 @@ export const ReportTimeline = ({ histories = [] }) => {
     </div>
   );
 };
-

@@ -41,8 +41,10 @@ export const ReportDetailPage = () => {
   } = useReports();
   const { currentUser, isAdmin, isOfficer, isCitizen } = useAuth();
 
-  // Find target report
-  const report = reports.find((r) => r.id === id);
+  // Find target report by ID or Ticket Number
+  const report = reports.find(
+    (r) => r.id === id || r.ticketNumber?.toUpperCase() === id?.toUpperCase()
+  );
 
   // Modal / Action states
   const [showRejectModal, setShowRejectModal] = useState(false);

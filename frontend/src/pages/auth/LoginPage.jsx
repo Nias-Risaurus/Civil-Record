@@ -9,12 +9,11 @@ import {
   User,
   Wrench,
   Building2,
-  CheckCircle2,
   AlertCircle
 } from 'lucide-react';
 
 export const LoginPage = () => {
-  const { login, users } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');

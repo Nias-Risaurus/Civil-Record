@@ -78,12 +78,19 @@ export const ReportProvider = ({ children }) => {
     setNotifications((prev) => [newNotif, ...prev]);
   };
 
-  // Helper to generate ticket ID: CR-2026-00006
+  // Helper to generate ticket ID: CR-2026-00006 (Collision-proof)
   const generateTicketNumber = () => {
     const year = new Date().getFullYear();
-    const count = reports.length + 1;
-    const padded = String(count).padStart(5, '0');
-    return `CR-${year}-${padded}`;
+    let maxSeq = 0;
+    reports.forEach((r) => {
+      const match = r.ticketNumber?.match(/CR-\d{4}-(\d+)/);
+      if (match) {
+        const seq = parseInt(match[1], 10);
+        if (seq > maxSeq) maxSeq = seq;
+      }
+    });
+    const nextSeq = maxSeq + 1;
+    return `CR-${year}-${String(nextSeq).padStart(5, '0')}`;
   };
 
   // 1. Citizen: Create Report

@@ -71,3 +71,4 @@ class AuthApiTest extends TestCase
         $response->assertStatus(422);
     }
 }
+

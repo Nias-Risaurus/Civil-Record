@@ -1,45 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useReports } from '../../context/ReportContext';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { BeforeAfterViewer } from '../../components/reports/BeforeAfterViewer';
 import { ReportTimeline } from '../../components/reports/ReportTimeline';
 import { InteractiveMap } from '../../components/maps/InteractiveMap';
-import {
-  Search,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Calendar,
-  User,
-  ShieldCheck,
-  AlertCircle,
-  ArrowRight
-} from 'lucide-react';
+import { Search, Clock, MapPin, AlertCircle } from 'lucide-react';
 
 export const TrackPage = () => {
-  const [searchParams] = useSearchParams();
-  const { reports } = useReports();
+  const [searchParams, setSearchParams] = useSearchParams();
   const ticketFromUrl = searchParams.get('ticket') || '';
 
   const [inputTicket, setInputTicket] = useState(ticketFromUrl);
   const [searchedTicket, setSearchedTicket] = useState(ticketFromUrl);
 
-  useEffect(() => {
-    if (ticketFromUrl) {
-      setInputTicket(ticketFromUrl);
-      setSearchedTicket(ticketFromUrl);
-    }
-  }, [ticketFromUrl]);
+  const report = reportsFind();
 
-  const report = reports.find(
-    (r) => r.ticketNumber.toUpperCase() === searchedTicket.trim().toUpperCase()
-  );
+  function reportsFind() {
+    const { reports } = useReports();
+    const activeSearch = (searchedTicket || ticketFromUrl).trim().toUpperCase();
+    return reports.find(
+      (r) => r.ticketNumber.toUpperCase() === activeSearch
+    );
+  }
+
+  const { reports } = useReports();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSearchedTicket(inputTicket);
+    const trimmed = inputTicket.trim().toUpperCase();
+    setSearchedTicket(trimmed);
+    if (trimmed) {
+      setSearchParams({ ticket: trimmed });
+    }
   };
+
+  const handleSelectSample = (ticketNum) => {
+    setInputTicket(ticketNum);
+    setSearchedTicket(ticketNum);
+    setSearchParams({ ticket: ticketNum });
+  };
+
+  const activeTicket = searchedTicket || ticketFromUrl;
+  const currentReport = reports.find(
+    (r) => r.ticketNumber.toUpperCase() === activeTicket.trim().toUpperCase()
+  );
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -49,7 +54,8 @@ export const TrackPage = () => {
           Lacak Perkembangan Laporan Kerusakan
         </h1>
         <p className="text-sm text-slate-600">
-          Masukkan nomor registrasi tiket laporan Anda (contoh: <code className="font-mono font-bold text-blue-600">CR-2026-00001</code>) untuk memantau status pengerjaan secara transparan.
+          Masukkan nomor registrasi tiket laporan Anda (contoh:{' '}
+          <code className="font-mono font-bold text-blue-600">CR-2026-00001</code>) untuk memantau status pengerjaan secara transparan.
         </p>
       </div>
 
@@ -82,10 +88,7 @@ export const TrackPage = () => {
             <button
               key={r.id}
               type="button"
-              onClick={() => {
-                setInputTicket(r.ticketNumber);
-                setSearchedTicket(r.ticketNumber);
-              }}
+              onClick={() => handleSelectSample(r.ticketNumber)}
               className="font-mono text-[11px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors"
             >
               {r.ticketNumber}
@@ -95,31 +98,31 @@ export const TrackPage = () => {
       </div>
 
       {/* Search Result */}
-      {searchedTicket && !report && (
+      {activeTicket && !currentReport && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-3">
           <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
           <h3 className="text-base font-bold text-amber-900">Laporan Tidak Ditemukan</h3>
           <p className="text-xs text-amber-700">
-            Nomor tiket <span className="font-mono font-bold">{searchedTicket}</span> tidak ditemukan dalam database kami. Pastikan nomor tiket sudah sesuai dengan format.
+            Nomor tiket <span className="font-mono font-bold">{activeTicket}</span> tidak ditemukan dalam database kami. Pastikan nomor tiket sudah sesuai dengan format.
           </p>
         </div>
       )}
 
-      {report && (
+      {currentReport && (
         <div className="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden space-y-6 p-6 sm:p-8">
           {/* Top banner info */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
-                  {report.ticketNumber}
+                  {currentReport.ticketNumber}
                 </span>
-                <StatusBadge status={report.status} size="lg" />
+                <StatusBadge status={currentReport.status} size="lg" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{report.title}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{currentReport.title}</h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1 flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>{report.address}</span>
+                <span>{currentReport.address}</span>
               </p>
             </div>
 
@@ -127,17 +130,17 @@ export const TrackPage = () => {
               <p>
                 Dilaporkan pada:{' '}
                 <strong className="text-slate-800">
-                  {new Date(report.createdAt).toLocaleDateString('id-ID', {
+                  {new Date(currentReport.createdAt).toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric'
                   })}
                 </strong>
               </p>
-              {report.assignedOfficerName && (
+              {currentReport.assignedOfficerName && (
                 <p>
                   Petugas Lapangan:{' '}
-                  <strong className="text-slate-800">{report.assignedOfficerName}</strong>
+                  <strong className="text-slate-800">{currentReport.assignedOfficerName}</strong>
                 </p>
               )}
             </div>
@@ -149,15 +152,15 @@ export const TrackPage = () => {
               Deskripsi Kerusakan
             </h4>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              {report.description}
+              {currentReport.description}
             </p>
           </div>
 
           {/* Before & After Viewer */}
           <BeforeAfterViewer
-            beforeImage={report.beforeImage}
-            afterImage={report.afterImage}
-            afterCaption={report.maintenanceNotes || 'Hasil perbaikan petugas di lokasi'}
+            beforeImage={currentReport.beforeImage}
+            afterImage={currentReport.afterImage}
+            afterCaption={currentReport.maintenanceNotes || 'Hasil perbaikan petugas di lokasi'}
           />
 
           {/* Timeline & Map Grid */}
@@ -169,7 +172,7 @@ export const TrackPage = () => {
                 Riwayat & Timeline Penanganan
               </h4>
               <div className="bg-slate-50/60 p-4 rounded-2xl border border-slate-100">
-                <ReportTimeline histories={report.histories} />
+                <ReportTimeline histories={currentReport.histories} />
               </div>
             </div>
 
@@ -180,8 +183,8 @@ export const TrackPage = () => {
                 Titik Lokasi Kerusakan
               </h4>
               <InteractiveMap
-                reports={[report]}
-                selectedReport={report}
+                reports={[currentReport]}
+                selectedReport={currentReport}
                 height="320px"
                 showControls={false}
               />
@@ -192,4 +195,3 @@ export const TrackPage = () => {
     </div>
   );
 };
-

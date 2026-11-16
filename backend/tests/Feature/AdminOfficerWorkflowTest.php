@@ -105,3 +105,4 @@ class AdminOfficerWorkflowTest extends TestCase
         $this->assertCount(5, $this->report->fresh()->histories);
     }
 }
+

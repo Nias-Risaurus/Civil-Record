@@ -2,16 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ShieldAlert,
-  Target,
-  Users,
-  CheckCircle2,
-  Clock,
-  Sparkles,
-  Building2,
-  ArrowRight,
-  ShieldCheck,
-  Award,
-  Layers
+  Target
 } from 'lucide-react';
 
 export const AboutPage = () => {
@@ -144,4 +135,3 @@ export const AboutPage = () => {
     </div>
   );
 };
-

@@ -51,10 +51,21 @@ class ReportController extends Controller
             'before_image_url' => 'nullable|string',
         ]);
 
-        // Generate Ticket Number: CR-YYYY-NNNNN
+        // Generate Ticket Number: CR-YYYY-NNNNN (Collision-Proof)
         $year = date('Y');
-        $count = Report::whereYear('created_at', $year)->count() + 1;
-        $ticketNumber = sprintf('CR-%s-%05d', $year, $count);
+        $latestReport = Report::where('ticket_number', 'like', "CR-{$year}-%")
+            ->orderByDesc('id')
+            ->first();
+
+        $seq = 1;
+        if ($latestReport && preg_match('/CR-\d{4}-(\d+)/', $latestReport->ticket_number, $matches)) {
+            $seq = intval($matches[1]) + 1;
+        }
+
+        do {
+            $ticketNumber = sprintf('CR-%s-%05d', $year, $seq);
+            $seq++;
+        } while (Report::where('ticket_number', $ticketNumber)->exists());
 
         $userId = $request->user() ? $request->user()->id : 4; // fallback citizen
 

@@ -201,3 +201,4 @@
 
 * **List Fasilitas**: `GET /api/facilities` (daftar seluruh aset publik beserta jumlah insiden terkait).
 * **Detail & Riwayat Perawatan**: `GET /api/facilities/{id}` (termasuk riwayat pemeliharaan aset).
+
