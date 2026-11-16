@@ -53,3 +53,4 @@ export function findNearbyReports(targetReport, allReports, radiusMeters = 50) {
     }))
     .sort((a, b) => a.distanceMeters - b.distanceMeters);
 }
+

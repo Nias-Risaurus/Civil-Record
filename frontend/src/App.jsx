@@ -10,6 +10,8 @@ import { LandingPage } from './pages/public/LandingPage';
 import { AboutPage } from './pages/public/AboutPage';
 import { PublicMapPage } from './pages/public/PublicMapPage';
 import { TrackPage } from './pages/public/TrackPage';
+import { LoginPage } from './pages/auth/LoginPage';
+import { RegisterPage } from './pages/auth/RegisterPage';
 import { CitizenDashboard } from './pages/citizen/CitizenDashboard';
 import { CreateReportPage } from './pages/citizen/CreateReportPage';
 import { ReportDetailPage } from './pages/citizen/ReportDetailPage';
@@ -31,6 +33,8 @@ export default function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
                 <Route path="/map" element={<PublicMapPage />} />
                 <Route path="/track" element={<TrackPage />} />
                 <Route path="/facilities" element={<FacilityRegistryPage />} />

@@ -354,3 +354,4 @@ export const VerificationQueuePage = () => {
     </div>
   );
 };
+
