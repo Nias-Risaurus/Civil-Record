@@ -102,3 +102,4 @@ Dokumen ini mendefinisikan seluruh kebutuhan sistem perangkat lunak untuk **Civi
 4. **Desain & Responsivitas (UI/UX)**:
    * Desain antarmuka responsif (Mobile-first) untuk kemudahan operasional Citizen dan Officer di lapangan.
    * Tampilan Admin didesain optimal untuk produktivitas desktop.
+

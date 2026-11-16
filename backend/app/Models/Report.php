@@ -83,3 +83,4 @@ class Report extends Model
         return $this->hasOne(MaintenanceRecord::class);
     }
 }
+

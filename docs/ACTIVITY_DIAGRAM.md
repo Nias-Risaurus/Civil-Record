@@ -61,3 +61,4 @@ flowchart TD
 | **`RESOLVED`** | Officer | Minimal 1 foto *After* & catatan perbaikan | Muncul di antrean validasi penyelesaian admin. |
 | **`COMPLETED`** | Admin | Foto *Before* & *After* terverifikasi tuntas | Status fasilitas diperbarui (*Baik*); tercatat di buku pemeliharaan aset. |
 | **`REWORK`** | Admin | Admin memberikan catatan revisi perbaikan | Status dikembalikan ke `IN_PROGRESS` untuk perbaikan ulang petugas. |
+

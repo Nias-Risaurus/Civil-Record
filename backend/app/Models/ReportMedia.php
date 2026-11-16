@@ -29,3 +29,4 @@ class ReportMedia extends Model
         return $this->belongsTo(User::class, 'uploaded_by');
     }
 }
+

@@ -28,3 +28,4 @@ Dokumentasi lengkap tahap perencanaan tersedia di direktori `docs/`:
 * [Activity Diagram & Alur Siklus Laporan](docs/ACTIVITY_DIAGRAM.md)
 * [Entity-Relationship Diagram (ERD) & Skema Database](docs/DATABASE_ERD.md)
 * [Struktur Proyek Frontend & Backend](docs/PROJECT_STRUCTURE.md)
+

@@ -75,6 +75,16 @@ export const Navbar = () => {
                 Beranda
               </Link>
               <Link
+                to="/about"
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/about')
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                Tentang
+              </Link>
+              <Link
                 to="/map"
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive('/map')
@@ -97,18 +107,30 @@ export const Navbar = () => {
                 Lacak Tiket
               </Link>
 
-              {/* Citizen specific link */}
+              {/* Citizen specific links */}
               {isCitizen && (
-                <Link
-                  to="/citizen"
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive('/citizen')
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  Dashboard Warga
-                </Link>
+                <>
+                  <Link
+                    to="/citizen"
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive('/citizen')
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    Dashboard Warga
+                  </Link>
+                  <Link
+                    to="/citizen/create"
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                      isActive('/citizen/create')
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-blue-600 hover:bg-blue-50'
+                    }`}
+                  >
+                    + Buat Laporan
+                  </Link>
+                </>
               )}
 
               {/* Officer specific link */}
@@ -126,19 +148,51 @@ export const Navbar = () => {
                 </Link>
               )}
 
-              {/* Admin specific link */}
+              {/* Admin specific links */}
               {isAdmin && (
-                <Link
-                  to="/admin"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive('/admin')
-                      ? 'bg-purple-50 text-purple-700'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <Building2 className="w-4 h-4 text-purple-600" />
-                  Admin Console
-                </Link>
+                <>
+                  <Link
+                    to="/admin"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive('/admin')
+                        ? 'bg-purple-50 text-purple-700 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Building2 className="w-4 h-4 text-purple-600" />
+                    Admin Console
+                  </Link>
+                  <Link
+                    to="/admin/verification"
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive('/admin/verification')
+                        ? 'bg-amber-50 text-amber-800 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    Verifikasi
+                  </Link>
+                  <Link
+                    to="/admin/facilities"
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive('/admin/facilities')
+                        ? 'bg-blue-50 text-blue-700 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    Fasilitas
+                  </Link>
+                  <Link
+                    to="/admin/users"
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive('/admin/users')
+                        ? 'bg-purple-50 text-purple-700 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    Pengguna
+                  </Link>
+                </>
               )}
             </nav>
           </div>

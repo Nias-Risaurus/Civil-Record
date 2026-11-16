@@ -179,3 +179,4 @@ erDiagram
    * Index: `facility_id`, `report_id`, `officer_id`, `verification_status`.
 9. **`notifications`**:
    * Index: `user_id`, `is_read`, `created_at`.
+

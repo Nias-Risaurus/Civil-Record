@@ -20,7 +20,10 @@ import {
   Send,
   XCircle,
   FileCheck,
-  Building
+  Building,
+  Printer,
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
 
 export const ReportDetailPage = () => {
@@ -63,6 +66,8 @@ export const ReportDetailPage = () => {
   const [validationRemarks, setValidationRemarks] = useState(
     'Hasil pengerjaan dinilai baik, rapi, dan sesuai spesifikasi.'
   );
+
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   if (!report) {
     return (
@@ -176,6 +181,17 @@ export const ReportDetailPage = () => {
               <span>Validasi Hasil Perbaikan</span>
             </button>
           )}
+
+          {/* Official Printable Work Order / Receipt */}
+          <button
+            type="button"
+            onClick={() => setShowPrintModal(true)}
+            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors shadow-xs"
+            title="Cetak Surat Tugas & Lembar Kerja Fisik"
+          >
+            <Printer className="w-4 h-4 text-slate-500" />
+            <span>Cetak Lembar Kerja</span>
+          </button>
         </div>
       </div>
 
@@ -501,6 +517,158 @@ export const ReportDetailPage = () => {
                 >
                   Setujui & Selesai (Approve)
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Official Printable Work Order / Lembar Kerja Lapangan Modal */}
+      {showPrintModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto print:p-0 print:shadow-none">
+            {/* Modal Actions Bar (hidden when printing) */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Printer className="w-4 h-4 text-blue-600" />
+                Lembar Perintah Kerja & Dokumen Resmi
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Cetak / Simpan PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPrintModal(false)}
+                  className="p-2 text-slate-400 hover:text-slate-700 text-sm font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Official Municipal Document Layout */}
+            <div className="border-2 border-slate-900 p-6 rounded-2xl space-y-6 bg-white text-slate-900 font-sans">
+              {/* Header Surat Resmi */}
+              <div className="text-center pb-4 border-b-2 border-slate-900 space-y-1">
+                <h2 className="text-base font-black uppercase tracking-wider">
+                  PEMERINTAH KOTA • SISTEM CIVILRECORD
+                </h2>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                  SURAT TUGAS & LEMBAR VERIFIKASI PEMELIHARAAN FASILITAS UMUM
+                </h3>
+                <p className="text-[11px] font-mono text-slate-500">
+                  NOMOR TIKET: <strong>{report.ticketNumber}</strong> • TANGGAL:{' '}
+                  {new Date(report.createdAt).toLocaleDateString('id-ID')}
+                </p>
+              </div>
+
+              {/* Data Laporan */}
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">
+                    Nama Fasilitas / Laporan:
+                  </span>
+                  <p className="font-bold text-slate-900 text-sm mt-0.5">{report.title}</p>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">
+                    Status Dokumen:
+                  </span>
+                  <p className="font-bold uppercase text-slate-900 mt-0.5">
+                    {report.status.toUpperCase()} ({report.priority.toUpperCase()} PRIORITY)
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">
+                    Lokasi Fisik:
+                  </span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{report.address}</p>
+                  <p className="font-mono text-[11px] text-slate-500">
+                    Koordinat GPS: {report.lat}, {report.lng}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">
+                    Uraian Masalah:
+                  </span>
+                  <p className="text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200 mt-0.5 italic">
+                    "{report.description}"
+                  </p>
+                </div>
+              </div>
+
+              {/* Assigned Officer & Work notes */}
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                <div className="flex justify-between">
+                  <span className="font-semibold">Petugas Teknis Lapangan:</span>
+                  <span className="font-bold">{report.assignedOfficerName || 'Belum Ditugaskan'}</span>
+                </div>
+                {report.workNotes && (
+                  <div>
+                    <span className="font-semibold">Instruksi Pengerjaan:</span>
+                    <p className="text-slate-600 italic">{report.workNotes}</p>
+                  </div>
+                )}
+                {report.dueDate && (
+                  <div className="flex justify-between pt-1 border-t border-slate-200 text-rose-700 font-semibold">
+                    <span>Tenggat Waktu SLA:</span>
+                    <span>{new Date(report.dueDate).toLocaleDateString('id-ID')}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Photo Evidence in Document */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-slate-600 block">
+                    FOTO AWAL (SEBELUM)
+                  </span>
+                  <div className="h-32 rounded-lg overflow-hidden border border-slate-300">
+                    <img
+                      src={report.beforeImage}
+                      alt="Before"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-slate-600 block">
+                    FOTO HASIL PERBAIKAN (SESUDAH)
+                  </span>
+                  <div className="h-32 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400">
+                    {report.afterImage ? (
+                      <img
+                        src={report.afterImage}
+                        alt="After"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      'Belum ada foto sesudah'
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tanda Tangan Pengesahan Lapangan */}
+              <div className="pt-4 border-t border-slate-300 grid grid-cols-2 gap-8 text-center text-xs">
+                <div className="space-y-12">
+                  <p className="font-semibold text-slate-600">Petugas Teknis Pelaksana</p>
+                  <p className="font-bold border-t border-slate-400 pt-1">
+                    ({report.assignedOfficerName || '....................................'})
+                  </p>
+                </div>
+                <div className="space-y-12">
+                  <p className="font-semibold text-slate-600">Pejabat Verifikator / Admin</p>
+                  <p className="font-bold border-t border-slate-400 pt-1">
+                    ( Ir. Hendra Wijaya )
+                  </p>
+                </div>
               </div>
             </div>
           </div>

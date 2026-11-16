@@ -119,3 +119,4 @@ flowchart LR
      * **Sesuai**: Admin menekan "Approve & Selesaikan". Status berubah menjadi `COMPLETED`. Sistem memperbarui kondisi fasilitas umum pada *Facility Registry* menjadi `Baik / Berfungsi`.
      * **Belum Sesuai**: Admin menekan "Minta Revisi". Status dikembalikan ke `IN_PROGRESS` disertai instruksi pengerjaan ulang (*rework*).
   4. Pelapor dan petugas menerima notifikasi hasil validasi.
+
