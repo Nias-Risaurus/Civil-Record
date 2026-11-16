@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useReports } from '../../context/ReportContext';
@@ -14,12 +14,18 @@ import {
   ArrowRight,
   Sparkles,
   Navigation,
-  HardHat
+  HardHat,
+  ShieldCheck,
+  CheckSquare,
+  FileText,
+  AlertTriangle,
+  Building
 } from 'lucide-react';
 
 export const OfficerDashboard = () => {
   const { currentUser } = useAuth();
   const { reports, startReportWork } = useReports();
+  const [activeTab, setActiveTab] = useState('all');
 
   // Tasks assigned to this officer (or all assigned/in_progress tasks for demo preview)
   const myTasks = reports.filter(
@@ -28,13 +34,25 @@ export const OfficerDashboard = () => {
       r.assignedOfficerName === currentUser?.name ||
       r.status === 'assigned' ||
       r.status === 'in_progress' ||
-      r.status === 'resolved'
+      r.status === 'resolved' ||
+      r.status === 'completed'
   );
 
   const assignedTasks = myTasks.filter((t) => t.status === 'assigned');
   const inProgressTasks = myTasks.filter((t) => t.status === 'in_progress');
   const resolvedTasks = myTasks.filter((t) => t.status === 'resolved');
   const completedTasks = myTasks.filter((t) => t.status === 'completed');
+
+  const displayedTasks =
+    activeTab === 'all'
+      ? myTasks
+      : activeTab === 'assigned'
+      ? assignedTasks
+      : activeTab === 'in_progress'
+      ? inProgressTasks
+      : activeTab === 'resolved'
+      ? resolvedTasks
+      : completedTasks;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -104,27 +122,108 @@ export const OfficerDashboard = () => {
         </div>
       </div>
 
+      {/* K3 Safety & Compliance Municipal Protocol Banner */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+              <span>Standar Keselamatan Kerja (K3) Dinas PU & Perhubungan</span>
+              <span className="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full font-bold">
+                MANDATORI
+              </span>
+            </h4>
+            <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+              Wajib gunakan <strong>Rompi Reflektif</strong>, <strong>Helm SNI</strong>, serta pasang <strong>Traffic Cones</strong> minimal 15 meter sebelum area pengerjaan fisik di badan jalan. Catat bahan dan alat berat pada formulir berita acara sebelum submit.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 text-xs font-bold text-amber-800 bg-white/80 backdrop-blur px-3 py-2 rounded-xl border border-amber-200">
+          <HardHat className="w-4 h-4 text-amber-600" />
+          <span>SOP No. 04/K3-PU/2026</span>
+        </div>
+      </div>
+
       {/* Task List */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Daftar Tugas Perbaikan Saya</h2>
             <p className="text-xs text-slate-500">
               Tiket penugasan lapangan dari administrator pemda yang ditujukan kepada Anda
             </p>
           </div>
-          <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
-            {myTasks.length} Tiket Terdata
-          </span>
+
+          {/* Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setActiveTab('all')}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'all'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Semua ({myTasks.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('assigned')}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'assigned'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-indigo-600'
+              }`}
+            >
+              Baru ({assignedTasks.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('in_progress')}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'in_progress'
+                  ? 'bg-purple-600 text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-purple-600'
+              }`}
+            >
+              Dikerjakan ({inProgressTasks.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('resolved')}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'resolved'
+                  ? 'bg-teal-600 text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-teal-600'
+              }`}
+            >
+              Review ({resolvedTasks.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('completed')}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'completed'
+                  ? 'bg-emerald-600 text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-emerald-600'
+              }`}
+            >
+              Selesai ({completedTasks.length})
+            </button>
+          </div>
         </div>
 
         <div className="divide-y divide-slate-100">
-          {myTasks.length === 0 ? (
+          {displayedTasks.length === 0 ? (
             <div className="p-12 text-center text-xs text-slate-400">
-              Belum ada tugas lapangan yang ditugaskan kepada Anda.
+              Tidak ada tugas di kategori tab ini.
             </div>
           ) : (
-            myTasks.map((task) => (
+            displayedTasks.map((task) => (
               <div
                 key={task.id}
                 className="p-5 sm:p-6 hover:bg-slate-50/70 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
@@ -171,17 +270,28 @@ export const OfficerDashboard = () => {
                     {task.status === 'assigned' && (
                       <button
                         onClick={() => startReportWork(task.id)}
-                        className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition-colors"
+                        className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
                       >
-                        Mulai Kerja
+                        <Wrench className="w-3.5 h-3.5" />
+                        <span>Mulai Kerja</span>
                       </button>
+                    )}
+
+                    {task.status === 'in_progress' && (
+                      <Link
+                        to={`/reports/${task.id}`}
+                        className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 animate-pulse"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Selesaikan (After & K3)</span>
+                      </Link>
                     )}
 
                     <Link
                       to={`/reports/${task.id}`}
                       className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-bold transition-colors"
                     >
-                      <span>Buka Lembar Kerja</span>
+                      <span>Lembar Kerja</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

@@ -39,6 +39,26 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-xs">
+      {/* Official Municipal Announcement / Hotline Strip */}
+      <div className="bg-slate-950 text-slate-300 text-[11px] font-medium py-1.5 px-4 sm:px-6 lg:px-8 border-b border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="hidden sm:inline font-bold text-white uppercase tracking-wider">
+            Pemerintah Kota
+          </span>
+          <span className="hidden sm:inline text-slate-500">•</span>
+          <span>Sistem Informasi Terpadu Pelaporan Fasilitas Publik</span>
+        </div>
+        <div className="flex items-center gap-3 text-[11px]">
+          <span className="hidden md:inline text-slate-400">
+            Call Center: <strong className="text-white">0800-1-CIVIL</strong>
+          </span>
+          <span className="bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+            <span>Siaga Darurat 112</span>
+          </span>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo & Tagline */}

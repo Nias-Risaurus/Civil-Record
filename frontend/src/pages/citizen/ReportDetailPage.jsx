@@ -23,7 +23,13 @@ import {
   Building,
   Printer,
   FileSpreadsheet,
-  Download
+  Download,
+  Star,
+  ShieldCheck,
+  CheckSquare,
+  Truck,
+  HardHat,
+  MessageSquareQuote
 } from 'lucide-react';
 
 export const ReportDetailPage = () => {
@@ -37,7 +43,8 @@ export const ReportDetailPage = () => {
     assignReport,
     startReportWork,
     resolveReportWork,
-    validateReport
+    validateReport,
+    rateReport
   } = useReports();
   const { currentUser, isAdmin, isOfficer, isCitizen } = useAuth();
 
@@ -56,10 +63,16 @@ export const ReportDetailPage = () => {
     'Lakukan perbaikan sesuai standar teknis keselamatan kerja.'
   );
 
+  // Officer Resolve & K3 Safety & Material Ledger state
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [resolveNotes, setResolveNotes] = useState(
     'Pengerjaan perbaikan telah selesai 100% dan siap diinspeksi.'
   );
+  const [k3SafetyVest, setK3SafetyVest] = useState(true);
+  const [k3Cones, setK3Cones] = useState(true);
+  const [k3Ppe, setK3Ppe] = useState(true);
+  const [materialUsed, setMaterialUsed] = useState('Aspal Cold Mix 6 Sak, Emulsi Tack Coat 1 Drum');
+  const [equipmentUsed, setEquipmentUsed] = useState('Baby Roller Vibratory 1-Ton, Jack Hammer');
   const [afterImagePreset, setAfterImagePreset] = useState(
     'https://images.unsplash.com/photo-1541888946425-d0fbb18615f3?w=800&auto=format&fit=crop&q=80'
   );
@@ -67,6 +80,14 @@ export const ReportDetailPage = () => {
   const [showValidateModal, setShowValidateModal] = useState(false);
   const [validationRemarks, setValidationRemarks] = useState(
     'Hasil pengerjaan dinilai baik, rapi, dan sesuai spesifikasi.'
+  );
+
+  // Citizen Satisfaction (IKM) modal & rating state
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingScore, setRatingScore] = useState(5);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [ratingFeedback, setRatingFeedback] = useState(
+    'Pelayanan sangat cepat, perbaikan jalan rapi dan aman dilewati!'
   );
 
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -184,6 +205,25 @@ export const ReportDetailPage = () => {
             </button>
           )}
 
+          {/* Citizen: Completed -> Rate / IKM Survey Button or Badge */}
+          {report.status === 'completed' && (
+            report.citizenRating ? (
+              <div className="px-3.5 py-1.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-1.5 text-xs font-bold text-amber-800 shadow-xs">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span>IKM: {report.citizenRating}/5 Bintang</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowRatingModal(true)}
+                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all animate-pulse"
+              >
+                <Star className="w-4 h-4 fill-white" />
+                <span>Beri Penilaian Warga (IKM)</span>
+              </button>
+            )
+          )}
+
           {/* Official Printable Work Order / Receipt */}
           <button
             type="button"
@@ -266,6 +306,130 @@ export const ReportDetailPage = () => {
             afterImage={report.afterImage}
             afterCaption={report.maintenanceNotes || 'Hasil perbaikan petugas di lokasi'}
           />
+
+          {/* Citizen Satisfaction Index (IKM) Card if completed or rated */}
+          {report.status === 'completed' && (
+            <div className="bg-gradient-to-br from-amber-500/10 via-amber-50 to-orange-50 rounded-3xl border border-amber-200/80 p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-amber-200/60">
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900">
+                      Survei Indeks Kepuasan Masyarakat (IKM)
+                    </h3>
+                    <p className="text-[11px] text-slate-600">
+                      Evaluasi mutu layanan perbaikan infrastruktur publik sesuai PermenPAN-RB
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+                  Akuntabilitas Publik
+                </span>
+              </div>
+
+              {report.citizenRating ? (
+                <div className="bg-white/80 backdrop-blur rounded-2xl p-4 border border-amber-200/60 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-5 h-5 ${
+                            star <= report.citizenRating
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-slate-200'
+                          }`}
+                        />
+                      ))}
+                      <span className="text-xs font-black text-slate-800 ml-2">
+                        {report.citizenRating}.0 / 5.0
+                      </span>
+                      <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded ml-1">
+                        {report.citizenRating === 5
+                          ? 'Sangat Memuaskan'
+                          : report.citizenRating === 4
+                          ? 'Memuaskan'
+                          : report.citizenRating === 3
+                          ? 'Cukup'
+                          : 'Perlu Ditingkatkan'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Terverifikasi
+                    </span>
+                  </div>
+
+                  {report.citizenFeedback && (
+                    <div className="text-xs text-slate-700 bg-amber-50/50 p-3 rounded-xl border border-amber-100 italic flex items-start gap-2">
+                      <MessageSquareQuote className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <span>"{report.citizenFeedback}"</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-slate-400 text-right">
+                    Dinilai oleh pelapor: {report.reporterName}
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white/90 backdrop-blur rounded-2xl p-4 border border-amber-200/60 space-y-3">
+                  <p className="text-xs text-slate-700 font-medium">
+                    Fasilitas publik telah selesai diperbaiki! Bagaimana penilaian Anda terhadap kecepatan dan kualitas perbaikan dinas terkait?
+                  </p>
+
+                  {/* Interactive 5-Star Selector */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onMouseEnter={() => setRatingHover(star)}
+                          onMouseLeave={() => setRatingHover(0)}
+                          onClick={() => setRatingScore(star)}
+                          className="p-1 hover:scale-125 transition-transform"
+                        >
+                          <Star
+                            className={`w-7 h-7 cursor-pointer transition-colors ${
+                              star <= (ratingHover || ratingScore)
+                                ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
+                                : 'text-slate-300 hover:text-slate-400'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <span className="text-xs font-bold text-amber-800">
+                      {(ratingHover || ratingScore) === 5 && '⭐⭐⭐⭐⭐ Sangat Memuaskan'}
+                      {(ratingHover || ratingScore) === 4 && '⭐⭐⭐⭐ Memuaskan'}
+                      {(ratingHover || ratingScore) === 3 && '⭐⭐⭐ Cukup Memuaskan'}
+                      {(ratingHover || ratingScore) === 2 && '⭐⭐ Kurang Memuaskan'}
+                      {(ratingHover || ratingScore) === 1 && '⭐ Sangat Tidak Memuaskan'}
+                    </span>
+                  </div>
+
+                  <div>
+                    <textarea
+                      rows={2}
+                      value={ratingFeedback}
+                      onChange={(e) => setRatingFeedback(e.target.value)}
+                      placeholder="Tuliskan apresiasi atau masukan Anda terkait perbaikan fasilitas publik ini..."
+                      className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      rateReport(report.id, ratingScore, ratingFeedback);
+                    }}
+                    className="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Star className="w-4 h-4 fill-white" />
+                    <span>Kirim Penilaian Kepuasan (IKM)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Interactive Map */}
           <div className="bg-white rounded-3xl border border-slate-200 p-4 shadow-xs space-y-2">
@@ -391,26 +555,105 @@ export const ReportDetailPage = () => {
 
       {/* Modal: Selesaikan Pekerjaan & Unggah Foto After (Officer) */}
       {showResolveModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-2 text-teal-600">
-              <Sparkles className="w-6 h-6" />
-              <h3 className="text-base font-bold text-slate-900">Dokumentasi Hasil Perbaikan Lapangan</h3>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center gap-2.5 text-teal-700 pb-2 border-b border-slate-100">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center">
+                <HardHat className="w-5 h-5 text-teal-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 leading-tight">
+                  Dokumentasi Teknis & Berita Acara Perbaikan Lapangan
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Formulir penyelesaian pekerjaan fisik sesuai Standar Operasional Prosedur (SOP) Dinas PU
+                </p>
+              </div>
             </div>
+
+            {/* K3 Safety Checklist */}
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                Pematuhan K3 & Keselamatan Lapangan (Mandatori)
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                <label className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={k3SafetyVest}
+                    onChange={(e) => setK3SafetyVest(e.target.checked)}
+                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className="text-slate-700 font-medium">Rompi & Helm K3</span>
+                </label>
+                <label className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={k3Cones}
+                    onChange={(e) => setK3Cones(e.target.checked)}
+                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className="text-slate-700 font-medium">Traffic Cones</span>
+                </label>
+                <label className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={k3Ppe}
+                    onChange={(e) => setK3Ppe(e.target.checked)}
+                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className="text-slate-700 font-medium">Sepatu & Sarung APD</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Material Usage & Heavy Equipment Ledger */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Realisasi Material Fisik
+                </label>
+                <input
+                  type="text"
+                  value={materialUsed}
+                  onChange={(e) => setMaterialUsed(e.target.value)}
+                  placeholder="Contoh: Aspal Cold Mix 6 Sak, Tack Coat 1 Drum"
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Peralatan / Armada Dinas
+                </label>
+                <input
+                  type="text"
+                  value={equipmentUsed}
+                  onChange={(e) => setEquipmentUsed(e.target.value)}
+                  placeholder="Contoh: Baby Roller Vibratory, Jack Hammer"
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Catatan Tindakan Teknis</label>
+              <label className="text-xs font-bold text-slate-700 block mb-1">
+                Catatan Berita Acara Pengerjaan
+              </label>
               <textarea
-                rows={3}
+                rows={2}
                 value={resolveNotes}
                 onChange={(e) => setResolveNotes(e.target.value)}
+                placeholder="Rincian teknis pengerjaan dan volume pekerjaan yang diselesaikan..."
                 className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
+
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Foto Bukti Setelah Perbaikan (AFTER)
+                Dokumentasi Foto Bukti Setelah Perbaikan (AFTER)
               </label>
-              <div className="h-44 rounded-xl overflow-hidden border border-slate-200 mb-2">
+              <div className="h-40 rounded-xl overflow-hidden border border-slate-200 mb-2">
                 <img
                   src={afterImagePreset}
                   alt="After"
@@ -426,9 +669,9 @@ export const ReportDetailPage = () => {
                       'https://images.unsplash.com/photo-1541888946425-d0fbb18615f3?w=800&auto=format&fit=crop&q=80'
                     )
                   }
-                  className="font-bold text-teal-600 hover:underline"
+                  className="font-bold text-teal-600 hover:underline cursor-pointer"
                 >
-                  Aspal Rapi
+                  Aspal Rapi (Bina Marga)
                 </button>
                 <span>•</span>
                 <button
@@ -438,13 +681,14 @@ export const ReportDetailPage = () => {
                       'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800&auto=format&fit=crop&q=80'
                     )
                   }
-                  className="font-bold text-teal-600 hover:underline"
+                  className="font-bold text-teal-600 hover:underline cursor-pointer"
                 >
-                  Taman Rapi
+                  Taman Kota Rapi (DKPP)
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setShowResolveModal(false)}
@@ -455,15 +699,18 @@ export const ReportDetailPage = () => {
               <button
                 type="button"
                 onClick={() => {
+                  const combinedNotes = `${resolveNotes} (Material: ${materialUsed} | Armada: ${equipmentUsed} | K3: ${
+                    k3SafetyVest && k3Cones && k3Ppe ? 'SOP Lengkap' : 'Parsial'
+                  })`;
                   resolveReportWork(report.id, {
-                    maintenanceNotes: resolveNotes,
+                    maintenanceNotes: combinedNotes,
                     afterImage: afterImagePreset
                   });
                   setShowResolveModal(false);
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/25 cursor-pointer"
               >
-                Kirim untuk Validasi Admin
+                Kirim Berita Acara & Validasi Admin
               </button>
             </div>
           </div>
@@ -520,6 +767,96 @@ export const ReportDetailPage = () => {
                   Setujui & Selesai (Approve)
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Rating Kepuasan Pelapor (IKM) */}
+      {showRatingModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-2.5 text-amber-600 pb-2 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+                <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 leading-tight">
+                  Survei Kepuasan Layanan (IKM)
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Tiket: {report.ticketNumber} • Fasilitas: {report.title}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Suara Anda sangat berarti bagi peningkatan kualitas fasilitas umum kota. Silakan berikan rating kepuasan atas hasil perbaikan oleh dinas terkait.
+            </p>
+
+            {/* Star selector */}
+            <div className="flex flex-col items-center justify-center p-4 bg-amber-50/60 rounded-2xl border border-amber-200/60 space-y-2">
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onMouseEnter={() => setRatingHover(star)}
+                    onMouseLeave={() => setRatingHover(0)}
+                    onClick={() => setRatingScore(star)}
+                    className="p-1 hover:scale-125 transition-transform cursor-pointer"
+                  >
+                    <Star
+                      className={`w-8 h-8 transition-colors ${
+                        star <= (ratingHover || ratingScore)
+                          ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
+                          : 'text-slate-300 hover:text-slate-400'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs font-black text-amber-900">
+                {(ratingHover || ratingScore) === 5 && '⭐⭐⭐⭐⭐ Sangat Memuaskan'}
+                {(ratingHover || ratingScore) === 4 && '⭐⭐⭐⭐ Memuaskan'}
+                {(ratingHover || ratingScore) === 3 && '⭐⭐⭐ Cukup Memuaskan'}
+                {(ratingHover || ratingScore) === 2 && '⭐⭐ Kurang Memuaskan'}
+                {(ratingHover || ratingScore) === 1 && '⭐ Sangat Tidak Memuaskan'}
+              </span>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">
+                Komentar / Masukan Warga
+              </label>
+              <textarea
+                rows={3}
+                value={ratingFeedback}
+                onChange={(e) => setRatingFeedback(e.target.value)}
+                placeholder="Bagikan pengalaman Anda mengenai kecepatan dan mutu perbaikan ini..."
+                className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowRatingModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  rateReport(report.id, ratingScore, ratingFeedback);
+                  setShowRatingModal(false);
+                }}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/25 cursor-pointer flex items-center gap-1.5"
+              >
+                <Star className="w-4 h-4 fill-white" />
+                <span>Simpan Penilaian IKM</span>
+              </button>
             </div>
           </div>
         </div>
@@ -655,6 +992,35 @@ export const ReportDetailPage = () => {
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Maintenance Notes & Realization Ledger */}
+              {report.maintenanceNotes && (
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                  <span className="font-bold text-slate-800 block">
+                    Berita Acara Pengerjaan Fisik & Standar K3:
+                  </span>
+                  <p className="text-slate-700">{report.maintenanceNotes}</p>
+                </div>
+              )}
+
+              {/* Citizen Satisfaction Index in Document */}
+              <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 text-xs flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-amber-900 block">
+                    Indeks Kepuasan Masyarakat (IKM PermenPAN-RB):
+                  </span>
+                  {report.citizenRating ? (
+                    <p className="text-slate-700">
+                      Skor: <strong>{report.citizenRating}/5 Bintang</strong> — "{report.citizenFeedback || 'Layanan baik dan memuaskan.'}"
+                    </p>
+                  ) : (
+                    <p className="text-slate-500 italic">Menunggu evaluasi berkala oleh pelapor.</p>
+                  )}
+                </div>
+                <span className="font-mono text-[10px] font-bold px-2 py-1 rounded bg-amber-100 text-amber-800">
+                  {report.citizenRating ? 'TERVERIFIKASI' : 'PENDING EVAL'}
+                </span>
               </div>
 
               {/* Tanda Tangan Pengesahan Lapangan */}

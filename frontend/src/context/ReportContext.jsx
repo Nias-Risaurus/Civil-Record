@@ -409,6 +409,86 @@ export const ReportProvider = ({ children }) => {
     );
   };
 
+  // 8. Citizen Satisfaction Rating (IKM - Indeks Kepuasan Masyarakat)
+  const rateReport = (reportId, rating, feedback) => {
+    setReports((prev) =>
+      prev.map((rep) => {
+        if (rep.id === reportId) {
+          const updatedHistories = [
+            ...rep.histories,
+            {
+              id: `h-${Date.now()}`,
+              status: rep.status,
+              actor: `${currentUser?.name || 'Warga'} (Citizen)`,
+              note: `Warga memberikan penilaian kepuasan layanan: ${rating} / 5 Bintang. Ulasan: "${feedback}"`,
+              timestamp: new Date().toISOString()
+            }
+          ];
+
+          notifyUser(
+            'usr-admin-01',
+            'Penilaian Layanan Warga',
+            `Warga memberikan rating ${rating}/5 bintang untuk tiket ${rep.ticketNumber}.`,
+            rep.ticketNumber
+          );
+
+          return {
+            ...rep,
+            citizenRating: rating,
+            citizenFeedback: feedback,
+            histories: updatedHistories
+          };
+        }
+        return rep;
+      })
+    );
+  };
+
+  // 9. Export All Reports to CSV File
+  const exportReportsCsv = () => {
+    const headers = [
+      'Nomor Tiket',
+      'Judul Kerusakan',
+      'Kategori',
+      'Status',
+      'Prioritas',
+      'Kecamatan/Wilayah',
+      'Alamat Lokasi',
+      'Pelapor',
+      'Petugas Teknis',
+      'Estimasi Anggaran (Rp)',
+      'Rating Warga',
+      'Tanggal Lapor',
+      'Tanggal Selesai'
+    ];
+
+    const rows = reports.map((r) => [
+      `"${r.ticketNumber || ''}"`,
+      `"${(r.title || '').replace(/"/g, '""')}"`,
+      `"${r.categoryId || ''}"`,
+      `"${r.status || ''}"`,
+      `"${r.priority || ''}"`,
+      `"${r.district || 'Kec. Sukajadi'}"`,
+      `"${(r.address || '').replace(/"/g, '""')}"`,
+      `"${(r.reporterName || '').replace(/"/g, '""')}"`,
+      `"${(r.assignedOfficerName || '-').replace(/"/g, '""')}"`,
+      r.costEstimate || 0,
+      r.citizenRating ? `${r.citizenRating}/5` : 'Belum dinilai',
+      `"${new Date(r.createdAt).toLocaleDateString('id-ID')}"`,
+      `"${r.completedAt ? new Date(r.completedAt).toLocaleDateString('id-ID') : '-'}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `CivilRecord_Laporan_Pemda_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Mark notification read
   const markNotificationRead = (notifId) => {
     setNotifications((prev) =>
@@ -440,6 +520,8 @@ export const ReportProvider = ({ children }) => {
         startReportWork,
         resolveReportWork,
         validateReport,
+        rateReport,
+        exportReportsCsv,
         markNotificationRead,
         resetDemoData
       }}
